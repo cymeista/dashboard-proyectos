@@ -1,0 +1,423 @@
+﻿<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Control del Area</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--nv:#172554;--bl:#1d4ed8;--b2:#3b82f6;--bp:#dbeafe;
+--gn:#15803d;--gl:#16a34a;--gp:#dcfce7;
+--am:#92400e;--al:#d97706;--ap:#fef3c7;
+--rd:#991b1b;--rl:#dc2626;--rp:#fee2e2;
+--sl:#0f172a;--sm:#475569;--st:#94a3b8;
+--bg:#f1f5f9;--cd:#ffffff;--br:#e2e8f0;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--sl);font-size:13px}
+.hdr{background:var(--nv);padding:14px 26px;display:flex;align-items:center;justify-content:space-between}
+.hdr h1{color:#fff;font-size:18px;font-weight:700}
+.hdr .mt{color:#93c5fd;font-size:11px;text-align:right}
+.fb{background:#fff;padding:9px 26px;display:flex;gap:14px;align-items:center;border-bottom:1px solid var(--br);flex-wrap:wrap}
+.fb label{font-size:11px;font-weight:600;color:var(--sm);margin-right:4px}
+.fb select{border:1px solid var(--br);border-radius:6px;padding:5px 10px;font-size:12px;background:#f8fafc;min-width:140px}
+.btnr{background:var(--bl);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;font-weight:600}
+.main{padding:16px 26px;display:grid;gap:14px}
+.st{font-size:11px;font-weight:700;color:var(--sm);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.st::before{content:'';display:block;width:3px;height:14px;background:var(--b2);border-radius:2px}
+/* Semaforo */
+.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sc{border-radius:8px;padding:11px 13px;text-align:center}
+.sn{font-size:26px;font-weight:700}.sl2{font-size:10px;font-weight:600;text-transform:uppercase;margin-top:2px}
+/* Cards */
+.card{background:var(--cd);border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);overflow:hidden}
+.cb{padding:13px 15px}
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--nv);color:#fff;padding:7px 9px;text-align:left;font-size:11px;font-weight:600;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--br)}
+tbody tr:hover{background:#f8fafc}
+tbody td{padding:6px 9px;vertical-align:middle}
+.b{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.bg2{background:var(--gp);color:var(--gn)}.ba{background:var(--ap);color:var(--am)}
+.br2{background:var(--rp);color:var(--rd)}.bb{background:var(--bp);color:var(--bl)}.bz{background:#f1f5f9;color:var(--sm)}
+.pb{background:#e2e8f0;border-radius:4px;height:6px;min-width:55px;display:inline-block;vertical-align:middle}
+.pf{height:6px;border-radius:4px;display:block}
+.dok{color:var(--gl);font-weight:700}.dw{color:var(--al);font-weight:700}.dl{color:var(--rl);font-weight:700}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.g2{grid-template-columns:1fr}}
+.ct{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.ct button{border:1px solid var(--br);background:#f8fafc;border-radius:20px;padding:4px 11px;font-size:11px;cursor:pointer;font-weight:600;color:var(--sm);transition:.15s}
+.ct button.active{background:var(--bl);color:#fff;border-color:var(--bl)}
+.ht thead th{font-size:10px;padding:4px 6px}
+.ht tbody td{font-size:11px;text-align:center;padding:4px 5px;font-weight:600}
+.pn{text-align:left!important;font-weight:600;color:var(--sl);padding-left:8px!important;white-space:nowrap}
+.sw{max-height:360px;overflow-y:auto}
+.sw::-webkit-scrollbar{width:5px}
+.sw::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+.empty{color:var(--st);font-size:12px;text-align:center;padding:16px}
+.vd-late{background:#fee2e2;color:#991b1b;font-weight:700;text-align:center;border-radius:4px;padding:2px 6px}
+.vd-warn{background:#fef3c7;color:#92400e;font-weight:700;text-align:center;border-radius:4px;padding:2px 6px}
+.vd-ok{background:#dcfce7;color:#15803d;font-weight:700;text-align:center;border-radius:4px;padding:2px 6px}
+.vd-hot{background:#fee2e2;color:#991b1b;font-weight:700;text-align:center;border-radius:4px;padding:2px 6px;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.rb{background:var(--nv);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px}
+.rb-a{background:#7c3aed;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px}
+.rb-p{background:#0891b2;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px}
+.cc-row{display:flex;align-items:center;justify-content:space-between;padding:7px 6px;border-bottom:1px solid var(--br);cursor:pointer;border-radius:4px}
+.cc-row:hover{background:#f1f5f9}
+.cc-row:last-child{border-bottom:none}
+.cc-name{font-size:12px;font-weight:700;color:var(--sl);display:flex;align-items:center;gap:4px}
+.cc-arr{font-size:9px;color:var(--st);transition:transform .2s;display:inline-block}
+.cc-nums{display:flex;gap:6px;align-items:center}
+.cc-comp{background:var(--bp);color:var(--bl);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700}
+.cc-cur{font-size:11px;color:var(--sm);font-weight:600}
+.cc-zero{font-size:11px;color:var(--st)}
+.cc-detail{background:#f8fafc;border-radius:6px;padding:6px;margin-bottom:4px}
+.cc-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.cc-tbl th{text-align:left;padding:5px 8px;background:#e2e8f0;color:var(--sm);font-weight:600}
+.cc-tbl td{padding:4px 8px;border-bottom:1px solid var(--br);vertical-align:top}
+.cc-tbl tr:last-child td{border-bottom:none}
+.cc-grp td{background:#dbeafe;color:var(--bl);font-weight:700;font-size:10px;padding:3px 8px;text-transform:uppercase}
+.cc-ldr{color:var(--st);font-style:italic}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:12px;padding:24px 28px;max-width:520px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal h3{font-size:15px;font-weight:700;color:var(--nv);margin-bottom:14px}
+.modal ul{list-style:none;padding:0}
+.modal ul li{padding:7px 0;border-bottom:1px solid var(--br);font-size:13px;color:var(--sl)}
+.modal ul li:last-child{border-bottom:none}
+.modal-close{margin-top:16px;background:var(--nv);color:#fff;border:none;border-radius:6px;padding:8px 20px;cursor:pointer;font-size:13px;font-weight:600}
+.gantt-wrap{overflow-x:auto}
+.gantt-svg{display:block}
+.pot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.pot-card{background:var(--cd);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.07);padding:14px 16px;border-left:4px solid var(--b2)}
+.pot-cli{font-size:10px;font-weight:700;color:var(--b2);text-transform:uppercase;letter-spacing:.5px}
+.pot-proy{font-size:13px;font-weight:700;color:var(--nv);margin:3px 0 2px}
+.pot-pm{font-size:11px;color:var(--sm);margin-bottom:8px}
+.pot-entr{font-size:11px;color:var(--sl);margin-bottom:2px}
+.pot-hrs{font-size:11px;font-weight:700;color:var(--am);margin-top:6px}
+.pot-etapa{display:inline-block;background:var(--ap);color:var(--am);font-size:10px;font-weight:600;padding:1px 8px;border-radius:20px;margin-bottom:6px}
+.pot-bar-wrap{background:#e2e8f0;border-radius:4px;height:5px;margin-top:4px}
+.pot-bar{height:5px;border-radius:4px;background:var(--b2)}
+</style></head><body>
+<div class="hdr"><h1>Dashboard &mdash; Control del &Aacute;rea</h1>
+<div class="mt">Generado: 28-mar-2026 16:30<br>Fuente: BD_DETALLE / PROGRAMA</div></div>
+<div class="fb">
+<div><label>Cliente</label><select id="fCli" onchange="applyF()"><option value="">Todos</option></select></div>
+<div><label>Proyecto</label><select id="fProy" onchange="applyF()"><option value="">Todos</option></select></div>
+<div><label>L&iacute;der</label><select id="fLid" onchange="applyF()"><option value="">Todos</option></select></div>
+<button class="btnr" onclick="resetF()">&#x21BA; Limpiar</button></div>
+<div class="main">
+<!-- SEMAFORO -->
+<div><div class="st">Sem&aacute;foro de Estados</div><div class="sr">
+<div class="sc" style="background:var(--gp)"><div class="sn" id="sO" style="color:var(--gl)">-</div><div class="sl2" style="color:var(--gn)">En Plazo / Adelantado</div></div>
+<div class="sc" style="background:var(--ap)"><div class="sn" id="sL" style="color:var(--al)">-</div><div class="sl2" style="color:var(--am)">Leve Retraso</div></div>
+<div class="sc" style="background:var(--rp)"><div class="sn" id="sR" style="color:var(--rl)">-</div><div class="sl2" style="color:var(--rd)">Retrasado</div></div>
+<div class="sc" style="background:var(--bp)"><div class="sn" id="sC" style="color:var(--bl)">-</div><div class="sl2" style="color:var(--bl)">Completado</div></div>
+</div></div>
+<!-- DETALLE ENTREGABLES -->
+<div class="card"><div class="cb"><div class="st">Detalle de Entregables <small id="dCnt" style="font-size:10px;color:#94a3b8"></small></div>
+<div class="sw"><table><thead><tr>
+<th>Cliente</th><th>Proyecto</th><th>Entregable</th><th>L&iacute;der</th><th>Av.Real</th><th>Av.Te&oacute;rico</th><th>Estado</th><th>Rev.B</th><th>Rev.A</th><th>Rev.P</th></tr></thead>
+<tbody id="tbD"></tbody></table></div></div></div>
+<!-- VENCIMIENTOS + PROYECTOS CLIENTE -->
+<div class=g2>
+<div class="card"><div class="cb"><div class="st">Pr&oacute;ximos Vencimientos <small style="font-size:10px;color:#94a3b8">(hoy + 60 d&iacute;as)</small></div>
+<div class="sw"><table><thead><tr>
+<th>D&iacute;as</th><th>Rev.</th><th>Fecha</th><th>Entregable</th><th>Proyecto</th><th>L&iacute;der</th><th>Estado</th></tr></thead>
+<tbody id="tbV"></tbody></table></div></div></div>
+<div class="card"><div class="cb"><div class="st">Proyectos por Cliente</div>
+<div id="ccW"></div></div></div>
+</div>
+<!-- HORAS + CARGA -->
+<div class=g2>
+<div class="card"><div class="cb"><div class="st">Horas por Mes</div>
+<div class="ct" id="pt"><button class="active" onclick="selP('__t__',this)">Total</button></div>
+<canvas id="cH" height="195"></canvas></div></div>
+<div class="card"><div class="cb"><div class="st">Carga por Profesional (horas/mes)</div>
+<div class="sw"><table class="ht"><thead><tr id="cHdr"></tr></thead><tbody id="cBody"></tbody></table></div></div></div>
+</div>
+<!-- GANTT -->
+<div class=card><div class=cb><div class=st>Cronograma de Entregables Activos</div>
+<div class=ct id=gtog></div>
+<div class=gantt-wrap><div id=ganttDiv></div></div></div></div>
+<!-- POTENCIALES -->
+<div class="card"><div class="cb"><div class="st">Proyectos Potenciales</div>
+<div class="pot-grid" id="potGrid"></div></div></div>
+</div>
+<script>
+const DE=[{"cli":"GLENCORE","proy":"PACHON","entr":"T. de Constructibilidad","avR":100.0,"avT":100.0,"est":"Completado","lider":"Nicolas Cifuentes","ini":"2025-11-17","term":"2026-01-08","revB":"2026-01-08","revA":"","revP":""},{"cli":"GLENCORE","proy":"PACHON","entr":"Inf. de T. de Constructibilidad-F1","avR":100.0,"avT":100.0,"est":"Completado","lider":"Javier Hernandez","ini":"2026-01-09","term":"2026-01-29","revB":"2026-01-29","revA":"","revP":""},{"cli":"GLENCORE","proy":"PACHON","entr":"Inf. de T. de Constructibilidad-F2","avR":100.0,"avT":100.0,"est":"Completado","lider":"Alberto Ordoñez","ini":"2026-03-16","term":"2026-03-22","revB":"2026-03-22","revA":"","revP":""},{"cli":"AMSA MLP","proy":"BASES GPR","entr":"Bases Técnicas GPR","avR":100.0,"avT":30.4,"est":"Completado","lider":"Javier Hernandez","ini":"2025-12-30","term":"2026-02-02","revB":"2026-02-02","revA":"","revP":""},{"cli":"CODELCO","proy":"TOVE","entr":"Taller 1 de Constructibilidad","avR":100.0,"avT":100.0,"est":"Completado","lider":"Michael Ross","ini":"2025-12-29","term":"2026-01-22","revB":"2026-01-22","revA":"","revP":""},{"cli":"CODELCO","proy":"TOVE","entr":"Taller 2 de Constructibilidad","avR":100.0,"avT":100.0,"est":"Completado","lider":"Michael Ross","ini":"2026-03-03","term":"2026-03-24","revB":"2026-03-24","revA":"2026-03-18","revP":"2026-03-24"},{"cli":"CODELCO","proy":"TOVE","entr":"Informe de Constructibilidad","avR":30.0,"avT":32.4,"est":"En Plazo","lider":"Michael Ross","ini":"2026-03-24","term":"2026-04-07","revB":"2026-04-07","revA":"2026-04-02","revP":"2026-04-22"},{"cli":"CODELCO","proy":"TOVE","entr":"Programa Maestro","avR":90.0,"avT":75.0,"est":"Adelantado","lider":"Dario Lara","ini":"2026-03-13","term":"2026-03-30","revB":"2026-03-30","revA":"2026-03-20","revP":"2026-04-09"},{"cli":"CODELCO","proy":"TOVE","entr":"Bases de Programa","avR":95.0,"avT":100.0,"est":"En Plazo","lider":"Dario Lara","ini":"2026-02-11","term":"2026-03-20","revB":"2026-03-20","revA":"2026-03-15","revP":"2026-03-30"},{"cli":"CODELCO","proy":"TOVE","entr":"Plan de Ejecución de Proyecto","avR":20.0,"avT":61.3,"est":"Retrasado","lider":"Javier Hernandez","ini":"2026-03-08","term":"2026-04-07","revB":"2026-04-07","revA":"2026-03-31","revP":"2026-04-30"},{"cli":"CODELCO","proy":"TOVE","entr":"Soporte Entregable EIA","avR":80.0,"avT":38.0,"est":"Adelantado","lider":"Nicolas Cifuentes","ini":"2026-03-09","term":"2026-04-07","revB":"2026-04-07","revA":"","revP":""},{"cli":"ANDES MINERALS","proy":"SALADILLO","entr":"Visita a Terreno y minuta","avR":70.0,"avT":66.7,"est":"En Plazo","lider":"Alberto Ordoñez","ini":"2026-03-19","term":"2026-03-30","revB":"2026-03-30","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"DREN PRINCIPAL","entr":"Etapa 1 - Retiro Material Antropico","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Alberto Ordoñez","ini":"2026-04-25","term":"2026-05-16","revB":"2026-05-16","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"DREN PRINCIPAL","entr":"Etapa 2 y 3 - Dren","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Alberto Ordoñez","ini":"2026-05-25","term":"2026-07-04","revB":"2026-07-04","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Plan de Ejecución","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Javier Hernandez","ini":"2026-05-10","term":"2026-06-14","revB":"2026-06-14","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Particip. T. de Constructibilidad","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Nicolas Cifuentes","ini":"2026-06-30","term":"2026-07-30","revB":"2026-07-30","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Programa Maestro","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Nicolas Cifuentes","ini":"2026-07-02","term":"2026-08-13","revB":"2026-08-13","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Bases Programa Maestro","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Nicolas Cifuentes","ini":"2026-07-30","term":"2026-09-08","revB":"2026-09-08","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Participacion taller progama","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Nicolas Cifuentes","ini":"2026-08-30","term":"2026-09-08","revB":"2026-09-08","revA":"","revP":""},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Soporte EIA","avR":100.0,"avT":64.3,"est":"Completado","lider":"Nicolas Cifuentes","ini":"2026-02-01","term":"2026-03-10","revB":"2026-03-10","revA":"","revP":""},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"T. de Constructibilidad","avR":15.0,"avT":0.0,"est":"No iniciado","lider":"Nicolas Cifuentes","ini":"2026-04-01","term":"2026-04-21","revB":"2026-04-21","revA":"2026-04-16","revP":"2026-04-21"},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Inf. de T. de Constructibilidad","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Nicolas Cifuentes","ini":"2026-04-15","term":"2026-04-28","revB":"2026-04-28","revA":"2026-04-23","revP":"2026-05-08"},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Programa Apoyo CAPEX","avR":100.0,"avT":100.0,"est":"Completado","lider":"Michael Ross","ini":"2026-03-02","term":"2026-03-06","revB":"2026-03-06","revA":"","revP":""},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Plan de Construcción PM","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Javier Hernandez","ini":"2026-04-01","term":"2026-04-14","revB":"2026-04-14","revA":"2026-04-11","revP":"2026-04-24"},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Plan de Ejecución DRE","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Javier Hernandez","ini":"2026-04-01","term":"2026-04-20","revB":"2026-04-20","revA":"2026-04-16","revP":"2026-04-30"},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Bases Técnicas DRE","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-04-25","term":"2026-05-15","revB":"2026-05-15","revA":"2026-05-10","revP":"2026-05-25"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Factibilidad)","entr":"Taller de Constructibilidad Factibilidad","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-05-11","term":"2026-06-01","revB":"2026-06-01","revA":"","revP":"2026-06-01"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Especificación Técnica Administración","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Alberto Ordoñez","ini":"2026-03-30","term":"2026-04-10","revB":"2026-04-10","revA":"2026-04-07","revP":"2026-04-18"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Taller de Constructibilidad PV 2 65%","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-05-18","term":"2026-06-12","revB":"2026-06-12","revA":"2026-06-05","revP":"2026-06-12"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Informe de Constructibilidad PV 2 65%","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-06-13","term":"2026-06-27","revB":"2026-06-27","revA":"2026-06-20","revP":"2026-07-07"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Taller de Constructibilidad PV 3 65%","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-07-06","term":"2026-07-31","revB":"2026-07-31","revA":"2026-07-24","revP":"2026-07-31"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Informe de Constructibilidad PV 3 85%","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-09-01","term":"2026-09-14","revB":"2026-09-14","revA":"2026-09-07","revP":"2026-09-22"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Bases y Programa Maestro de Construcción","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-10-23","term":"2026-11-09","revB":"2026-11-09","revA":"2026-11-02","revP":"2026-11-19"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Plan de Ejecución del Proyecto","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-11-06","term":"2026-12-18","revB":"2026-12-18","revA":"2026-12-11","revP":"2026-12-28"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Bases Técnicas de Licitación Construcción PV3 - Factibilidad","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Alberto Ordoñez","ini":"2026-04-14","term":"2026-05-14","revB":"2026-05-14","revA":"2026-05-04","revP":"2026-06-10"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Bases y Medidas de Pago PV3 - Factibilidad","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Ricardo Gattás","ini":"2026-04-14","term":"2026-05-14","revB":"2026-05-14","revA":"2026-05-04","revP":"2026-06-10"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"ECO PV3 - Factibilidad","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Ricardo Gattás","ini":"2026-04-14","term":"2026-05-14","revB":"2026-05-14","revA":"2026-05-04","revP":"2026-06-10"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Actualización Bases Técnicas de Licitación Construcción PV3","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-10-30","term":"2026-11-16","revB":"2026-11-16","revA":"2026-11-09","revP":"2026-11-26"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Actualización Bases y Medidas de Pago PV3","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-10-30","term":"2026-11-16","revB":"2026-11-16","revA":"2026-11-09","revP":"2026-11-26"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Actualización ECO PV3","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-10-30","term":"2026-11-16","revB":"2026-11-16","revA":"2026-11-09","revP":"2026-11-26"},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Apoyo proceso de Licitación paquete vertical PV3","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"TBD","ini":"2026-06-11","term":"2026-11-08","revB":"2026-11-08","revA":"2026-11-01","revP":"2026-11-18"},{"cli":"QUEBRADA BLANCA","proy":"Recuperación Shearkey","entr":"Documento Recuperación Shearkey","avR":90.0,"avT":31.5,"est":"Adelantado","lider":"Ricardo Gattás","ini":"2026-02-09","term":"2026-04-15","revB":"2026-04-15","revA":"","revP":""},{"cli":"QUEBRADA BLANCA","proy":"Acápite en informe Lodos","entr":"Acápite en informe Lodos","avR":90.0,"avT":50.0,"est":"Adelantado","lider":"Ricardo Gattás","ini":"2026-03-09","term":"2026-04-15","revB":"2026-04-15","revA":"","revP":""},{"cli":"QUEBRADA BLANCA","proy":"Reparación Sumidero","entr":"Presentación Secuencia Poza Sumidero","avR":50.0,"avT":41.3,"est":"Adelantado","lider":"Dario Lara","ini":"2026-02-09","term":"2026-04-30","revB":"2026-04-30","revA":"","revP":""},{"cli":"BAGUALES","proy":"CONSTRUCCIÓN INMOBILIARIA","entr":"Etapa 1 - Programa","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Dario Lara","ini":"2026-04-25","term":"2026-05-15","revB":"2026-05-15","revA":"","revP":""},{"cli":"BAGUALES","proy":"CONSTRUCCIÓN INMOBILIARIA","entr":"Etapa 2 - Control","avR":0.0,"avT":0.0,"est":"No iniciado","lider":"Dario Lara","ini":"2026-06-01","term":"2027-05-01","revB":"2027-05-01","revA":"","revP":""},{"cli":"OTROS SERVICIOS","proy":"SEGUIMIENTO CAMPAÑAS","entr":"Seguimiento Campañas","avR":99.0,"avT":48.1,"est":"Adelantado","lider":"Dario Lara","ini":"2026-01-01","term":"2026-06-30","revB":"2026-06-30","revA":"","revP":""},{"cli":"OTROS SERVICIOS","proy":"OTROS SERVICIOS","entr":"Revisión documentos A. Navarro","avR":99.0,"avT":48.1,"est":"Adelantado","lider":"Ricardo Gattás","ini":"2026-01-01","term":"2026-06-30","revB":"2026-06-30","revA":"","revP":""}];
+const DM=["2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","2026-09","2026-10","2026-11"];
+const DHM=[190,422,169,1001,1028,774,713,172,176,78,65,74];
+const DPD={"Alberto Ordoñez":[36,79,0,87,91,108,74,6,3,0,0,0],"Dario Lara":[4,18,48,103,255,244,79,45,57,45,45,45],"Hugo Izquierdo":[0,0,0,8,25,28,57,5,2,2,4,11],"Javier Hernandez":[57,72,0,152,28,0,0,0,0,0,0,0],"Michael Ross":[48,93,0,205,112,62,312,4,20,4,0,0],"Misael Quitral":[16,19,4,34,3,5,4,5,5,1,0,0],"Nicolas Cifuentes":[25,97,67,157,259,132,52,76,47,5,0,0],"Ricardo Gattás":[5,45,50,256,254,194,136,31,42,20,15,18]};
+const DP=["Alberto Ordoñez","Dario Lara","Hugo Izquierdo","Javier Hernandez","Michael Ross","Misael Quitral","Nicolas Cifuentes","Ricardo Gattás"];
+const DV=[{"cli":"CODELCO","proy":"TOVE","entr":"Bases de Programa","lider":"Dario Lara","est":"En Plazo","revB":"2026-03-20","revA":"2026-03-15","revP":"2026-03-30","diasB":-8},{"cli":"CODELCO","proy":"TOVE","entr":"Programa Maestro","lider":"Dario Lara","est":"Adelantado","revB":"2026-03-30","revA":"2026-03-20","revP":"2026-04-09","diasB":2},{"cli":"ANDES MINERALS","proy":"SALADILLO","entr":"Visita a Terreno y minuta","lider":"Alberto Ordoñez","est":"En Plazo","revB":"2026-03-30","revA":"","revP":"","diasB":2},{"cli":"CODELCO","proy":"TOVE","entr":"Plan de Ejecución de Proyecto","lider":"Javier Hernandez","est":"Retrasado","revB":"2026-04-07","revA":"2026-03-31","revP":"2026-04-30","diasB":10},{"cli":"CODELCO","proy":"TOVE","entr":"Soporte Entregable EIA","lider":"Nicolas Cifuentes","est":"Adelantado","revB":"2026-04-07","revA":"","revP":"","diasB":10},{"cli":"CODELCO","proy":"TOVE","entr":"Informe de Constructibilidad","lider":"Michael Ross","est":"En Plazo","revB":"2026-04-07","revA":"2026-04-02","revP":"2026-04-22","diasB":10},{"cli":"QUEBRADA BLANCA","proy":"Recuperación Shearkey","entr":"Documento Recuperación Shearkey","lider":"Ricardo Gattás","est":"Adelantado","revB":"2026-04-15","revA":"","revP":"","diasB":18},{"cli":"QUEBRADA BLANCA","proy":"Acápite en informe Lodos","entr":"Acápite en informe Lodos","lider":"Ricardo Gattás","est":"Adelantado","revB":"2026-04-15","revA":"","revP":"","diasB":18},{"cli":"QUEBRADA BLANCA","proy":"Reparación Sumidero","entr":"Presentación Secuencia Poza Sumidero","lider":"Dario Lara","est":"Adelantado","revB":"2026-04-30","revA":"","revP":"","diasB":33}];
+const DC=[{"cli":"GLENCORE","total":1,"comp":1,"proyList":"PACHON"},{"cli":"AMSA MLP","total":1,"comp":1,"proyList":"BASES GPR"},{"cli":"CODELCO","total":1,"comp":1,"proyList":"TOVE"},{"cli":"ANDES MINERALS","total":1,"comp":0,"proyList":""},{"cli":"COLLAHUASI","total":2,"comp":1,"proyList":"4TA LINEA"},{"cli":"AMSA CEN","total":3,"comp":1,"proyList":"DRE ETAPA 3 Y 4"},{"cli":"QUEBRADA BLANCA","total":3,"comp":0,"proyList":""},{"cli":"BAGUALES","total":1,"comp":0,"proyList":""},{"cli":"OTROS SERVICIOS","total":2,"comp":0,"proyList":""}];
+const DG=[{"cli":"CODELCO","proy":"TOVE","entr":"Informe de Constructibilidad","lider":"Michael Ross","ini":"2026-03-24","ter":"2026-04-07","est":"En Plazo","ci":1},{"cli":"CODELCO","proy":"TOVE","entr":"Programa Maestro","lider":"Dario Lara","ini":"2026-03-13","ter":"2026-03-30","est":"Adelantado","ci":1},{"cli":"CODELCO","proy":"TOVE","entr":"Bases de Programa","lider":"Dario Lara","ini":"2026-02-11","ter":"2026-03-20","est":"En Plazo","ci":1},{"cli":"CODELCO","proy":"TOVE","entr":"Plan de Ejecución de Proyecto","lider":"Javier Hernandez","ini":"2026-03-08","ter":"2026-04-07","est":"Retrasado","ci":1},{"cli":"CODELCO","proy":"TOVE","entr":"Soporte Entregable EIA","lider":"Nicolas Cifuentes","ini":"2026-03-09","ter":"2026-04-07","est":"Adelantado","ci":1},{"cli":"ANDES MINERALS","proy":"SALADILLO","entr":"Visita a Terreno y minuta","lider":"Alberto Ordoñez","ini":"2026-03-19","ter":"2026-03-30","est":"En Plazo","ci":2},{"cli":"COLLAHUASI","proy":"DREN PRINCIPAL","entr":"Etapa 1 - Retiro Material Antropico","lider":"Alberto Ordoñez","ini":"2026-04-25","ter":"2026-05-16","est":"No iniciado","ci":3},{"cli":"COLLAHUASI","proy":"DREN PRINCIPAL","entr":"Etapa 2 y 3 - Dren","lider":"Alberto Ordoñez","ini":"2026-05-25","ter":"2026-07-04","est":"No iniciado","ci":3},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Plan de Ejecución","lider":"Javier Hernandez","ini":"2026-05-10","ter":"2026-06-14","est":"No iniciado","ci":4},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Particip. T. de Constructibilidad","lider":"Nicolas Cifuentes","ini":"2026-06-30","ter":"2026-07-30","est":"No iniciado","ci":4},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Programa Maestro","lider":"Nicolas Cifuentes","ini":"2026-07-02","ter":"2026-08-13","est":"No iniciado","ci":4},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Bases Programa Maestro","lider":"Nicolas Cifuentes","ini":"2026-07-30","ter":"2026-09-08","est":"No iniciado","ci":4},{"cli":"COLLAHUASI","proy":"4TA LINEA","entr":"Participacion taller progama","lider":"Nicolas Cifuentes","ini":"2026-08-30","ter":"2026-09-08","est":"No iniciado","ci":4},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"T. de Constructibilidad","lider":"Nicolas Cifuentes","ini":"2026-04-01","ter":"2026-04-21","est":"No iniciado","ci":5},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Inf. de T. de Constructibilidad","lider":"Nicolas Cifuentes","ini":"2026-04-15","ter":"2026-04-28","est":"No iniciado","ci":5},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Plan de Construcción PM","lider":"Javier Hernandez","ini":"2026-04-01","ter":"2026-04-14","est":"No iniciado","ci":5},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Plan de Ejecución DRE","lider":"Javier Hernandez","ini":"2026-04-01","ter":"2026-04-20","est":"No iniciado","ci":5},{"cli":"AMSA CEN","proy":"DRE ETAPA 3 Y 4","entr":"Bases Técnicas DRE","lider":"TBD","ini":"2026-04-25","ter":"2026-05-15","est":"No iniciado","ci":5},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Factibilidad)","entr":"Taller de Constructibilidad Factibilidad","lider":"TBD","ini":"2026-05-11","ter":"2026-06-01","est":"No iniciado","ci":6},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Especificación Técnica Administración","lider":"Alberto Ordoñez","ini":"2026-03-30","ter":"2026-04-10","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Taller de Constructibilidad PV 2 65%","lider":"TBD","ini":"2026-05-18","ter":"2026-06-12","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Informe de Constructibilidad PV 2 65%","lider":"TBD","ini":"2026-06-13","ter":"2026-06-27","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Taller de Constructibilidad PV 3 65%","lider":"TBD","ini":"2026-07-06","ter":"2026-07-31","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Informe de Constructibilidad PV 3 85%","lider":"TBD","ini":"2026-09-01","ter":"2026-09-14","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Bases y Programa Maestro de Construcción","lider":"TBD","ini":"2026-10-23","ter":"2026-11-09","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Plan de Ejecución del Proyecto","lider":"TBD","ini":"2026-11-06","ter":"2026-12-18","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Bases Técnicas de Licitación Construcción PV3 - Factibilidad","lider":"Alberto Ordoñez","ini":"2026-04-14","ter":"2026-05-14","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Bases y Medidas de Pago PV3 - Factibilidad","lider":"Ricardo Gattás","ini":"2026-04-14","ter":"2026-05-14","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"ECO PV3 - Factibilidad","lider":"Ricardo Gattás","ini":"2026-04-14","ter":"2026-05-14","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Actualización Bases Técnicas de Licitación Construcción PV3","lider":"TBD","ini":"2026-10-30","ter":"2026-11-16","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Actualización Bases y Medidas de Pago PV3","lider":"TBD","ini":"2026-10-30","ter":"2026-11-16","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Actualización ECO PV3","lider":"TBD","ini":"2026-10-30","ter":"2026-11-16","est":"No iniciado","ci":7},{"cli":"AMSA CEN","proy":"NCEN Etapa 2 y 3 (Ing. de Detalles)","entr":"Apoyo proceso de Licitación paquete vertical PV3","lider":"TBD","ini":"2026-06-11","ter":"2026-11-08","est":"No iniciado","ci":7},{"cli":"QUEBRADA BLANCA","proy":"Recuperación Shearkey","entr":"Documento Recuperación Shearkey","lider":"Ricardo Gattás","ini":"2026-02-09","ter":"2026-04-15","est":"Adelantado","ci":8},{"cli":"QUEBRADA BLANCA","proy":"Acápite en informe Lodos","entr":"Acápite en informe Lodos","lider":"Ricardo Gattás","ini":"2026-03-09","ter":"2026-04-15","est":"Adelantado","ci":9},{"cli":"QUEBRADA BLANCA","proy":"Reparación Sumidero","entr":"Presentación Secuencia Poza Sumidero","lider":"Dario Lara","ini":"2026-02-09","ter":"2026-04-30","est":"Adelantado","ci":10},{"cli":"BAGUALES","proy":"CONSTRUCCIÓN INMOBILIARIA","entr":"Etapa 1 - Programa","lider":"Dario Lara","ini":"2026-04-25","ter":"2026-05-15","est":"No iniciado","ci":11},{"cli":"BAGUALES","proy":"CONSTRUCCIÓN INMOBILIARIA","entr":"Etapa 2 - Control","lider":"Dario Lara","ini":"2026-06-01","ter":"2027-05-01","est":"No iniciado","ci":11},{"cli":"OTROS SERVICIOS","proy":"SEGUIMIENTO CAMPAÑAS","entr":"Seguimiento Campañas","lider":"Dario Lara","ini":"2026-01-01","ter":"2026-06-30","est":"Adelantado","ci":12},{"cli":"OTROS SERVICIOS","proy":"OTROS SERVICIOS","entr":"Revisión documentos A. Navarro","lider":"Ricardo Gattás","ini":"2026-01-01","ter":"2026-06-30","est":"Adelantado","ci":1}];
+const DPOT=[{"cli":"Candelaria","proy":"Trade Off de Metodologías de Depositación de Relaves Posterior Fase 9","pm":"Alvaro Veliz","etapa":"Conceptual","entr":"Taller Constructibilidad, incluye informe","hrs":326,"det":"6|60|120|140"},{"cli":"Candelaria","proy":"Trade Off de Metodologías de Depositación de Relaves Posterior Fase 9","pm":"Alvaro Veliz","etapa":"Conceptual","entr":"Programa preliminar de ejecución del proyecto (fases y hitos)","hrs":122,"det":"2|20|80|20"},{"cli":"Candelaria","proy":"Trade Off de Metodologías de Depositación de Relaves Posterior Fase 9","pm":"Alvaro Veliz","etapa":"Conceptual","entr":"Informe de definición de alternativas, incluye taller","hrs":90,"det":"0|20|40|30"},{"cli":"AMSA","proy":"Alternativas de Mitigación adicionales","pm":"Jorge Salgado","etapa":"Conceptual","entr":"Revisión interna de documentos aptos para la construcción (para cada alternativa de 4)","hrs":280,"det":"100|80|100|0"},{"cli":"AMSA","proy":"Alternativas de Mitigación adicionales","pm":"Jorge Salgado","etapa":"Conceptual","entr":"Programa de Construcción (4 programas)","hrs":132,"det":"12|120|0|0"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Taller de Constructibilidad al 30%","hrs":15,"det":"5|5|5|0"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Taller de Constructibilidad al 70%","hrs":15,"det":"5|5|5|0"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Análisis constructibilidad PPT y Dry Run Taller","hrs":135,"det":"5|40|0|90"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Informe Análisis Interferencias Constructivas","hrs":88,"det":"3|25|60|0"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Informe de Constructibilidad e Interferencias","hrs":88,"det":"3|25|60|0"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Bases Técnicas de Licitación (BTL), incluye BMP e Itemizado de Partidas","hrs":143,"det":"3|40|100|0"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Programa Maestro del Proyecto Estandar SGPD","hrs":128,"det":"3|25|80|20"},{"cli":"CODELCO","proy":"Ing Fact Nuevo Concentraducto DAND","pm":"Alexis Gonzalez","etapa":"Factibilidad","entr":"Plan Ejecución del Proyecto Estandar SGPD","hrs":215,"det":"5|40|80|90"},{"cli":"CODELCO","proy":"Ing. Det. y Terreno TOVE 5","pm":"Loreto Cifuentes","etapa":"Detalle","entr":"TBD (no se ha terminado estimación formal)","hrs":0,"det":"0|0|0|0"}];
+const CL=["","GLENCORE","AMSA MLP","CODELCO","ANDES MINERALS","COLLAHUASI","AMSA CEN","QUEBRADA BLANCA","BAGUALES","OTROS SERVICIOS"];
+const PR=["","PACHON","BASES GPR","TOVE","SALADILLO","DREN PRINCIPAL","4TA LINEA","DRE ETAPA 3 Y 4","NCEN Etapa 2 y 3 (Ing. de Factibilidad)","NCEN Etapa 2 y 3 (Ing. de Detalles)","Recuperación Shearkey","Acápite en informe Lodos","Reparación Sumidero","CONSTRUCCIÓN INMOBILIARIA","SEGUIMIENTO CAMPAÑAS","OTROS SERVICIOS"];
+const LD=["","Nicolas Cifuentes","Javier Hernandez","Alberto Ordoñez","Michael Ross","Dario Lara","TBD","Ricardo Gattás"];
+const HOY=new Date(2026,2,28);
+const gF=()=>({c:document.getElementById('fCli').value,p:document.getElementById('fProy').value,l:document.getElementById('fLid').value});
+const filt=d=>{const f=gF();return d.filter(e=>(!f.c||e.cli===f.c)&&(!f.p||e.proy===f.p)&&(!f.l||e.lider===f.l));};
+const resetF=()=>{['fCli','fProy','fLid'].forEach(id=>document.getElementById(id).value='');applyF();};
+const applyF=()=>{const d=filt(DE);renderSem(d);renderDet(d);renderVenc();};
+const bc=e=>e==='En Plazo'||e==='Adelantado'?'bg2':e==='Leve Retraso'?'ba':e==='Retrasado'?'br2':e==='Completado'?'bb':'bz';
+const pc=(r,t)=>r>=t-5?'#16a34a':r>=t-15?'#d97706':'#dc2626';
+const hc=(v,mx)=>{if(!v||!mx)return '';const r=v/mx;return r<.33?'background:#dbeafe;color:#1d4ed8':r<.66?'background:#fef3c7;color:#92400e':'background:#fee2e2;color:#991b1b';};
+const fmtD=s=>{if(!s)return '-';const d=new Date(s);return d.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'2-digit'});};
+const renderSem=d=>{
+  const ep=d.filter(e=>e.est==='En Plazo'||e.est==='Adelantado').length;
+  const lv=d.filter(e=>e.est==='Leve Retraso').length;
+  const re=d.filter(e=>e.est==='Retrasado').length;
+  const co=d.filter(e=>e.est==='Completado').length;
+  document.getElementById('sO').textContent=ep;
+  document.getElementById('sL').textContent=lv;
+  document.getElementById('sR').textContent=re;
+  document.getElementById('sC').textContent=co;
+};
+const parseFecha=s=>{if(!s||s==='-'||s==='')return null;const p=s.split('-');return p.length===3?new Date(+p[0],+p[1]-1,+p[2]):null;};
+const fmtRev=s=>{const d=parseFecha(s);return d?d.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'2-digit'}):'-';};
+const diasBadge=(d,cls)=>'<span class='+cls+'>'+(d>=0?'+':'')+d+'d</span>';
+const renderVenc=()=>{
+  const f=gF();
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const rows=[];
+  DV.filter(v=>(!f.c||v.cli===f.c)&&(!f.p||v.proy===f.p)&&(!f.l||v.lider===f.l)).forEach(v=>{
+    const revs=[{lbl:'Rev.B',cls:'rb',f:v.revB},{lbl:'Rev.A',cls:'rb-a',f:v.revA},{lbl:'Rev.P',cls:'rb-p',f:v.revP}];
+    let best=null;
+    revs.forEach(rv=>{
+      if(!rv.f||rv.f==='-'||rv.f==='')return;
+      const dt=parseFecha(rv.f);if(isNaN(dt))return;
+      const dias=Math.round((dt-hoy)/864e5);
+      if(dias>=-3&&dias<=25){if(!best||Math.abs(dias)<Math.abs(best.dias))best={lbl:rv.lbl,cls:rv.cls,fecha:rv.f,dias};}
+    });
+    if(best)rows.push({...v,best});
+  });
+  rows.sort((a,b)=>a.best.dias-b.best.dias);
+  const tb=document.getElementById('tbV');
+  if(!rows.length){tb.innerHTML='<tr><td colspan=7 class=empty>Sin vencimientos en los pr\u00f3ximos 25 d\u00edas</td></tr>';return;}
+  tb.innerHTML=rows.map(v=>{
+    const d=v.best.dias;
+    const dc=d<0?'vd-late':d<=3?'vd-hot':d<=10?'vd-warn':'vd-ok';
+    const dt=parseFecha(v.best.fecha);
+    const fmt=dt.toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'2-digit'});
+    return '<tr>'
+      +'<td><span class='+dc+'>'+(d>=0?'+':'')+d+'d</span></td>'
+      +'<td><span class='+v.best.cls+'>'+v.best.lbl+'</span></td>'
+      +'<td>'+fmt+'</td>'
+      +'<td>'+v.entr+'</td>'
+      +'<td>'+v.proy+'</td>'
+      +'<td>'+v.lider+'</td>'
+      +'<td><span class='+JSON.stringify('b '+bc(v.est))+'>'+v.est+'</span></td>'
+      +'</tr>';
+  }).join('');
+};
+const renderCC=()=>{
+  const w=document.getElementById('ccW');
+  if(!DC.length){w.innerHTML='<p class=empty>Sin datos</p>';return;}
+  const clientes=[...new Set(DE.map(e=>e.cli))].sort();
+  w.innerHTML=clientes.map(cli=>{
+    const id='cc_'+cli.replace(/[^a-z0-9]/gi,'_');
+    const compRows=DE.filter(e=>e.cli===cli&&e.est==='Completado');
+    const curRows=DE.filter(e=>e.cli===cli&&!['Completado','No iniciado'].includes(e.est));
+    const nComp=compRows.length;const nCur=curRows.length;
+    const mkRows=rows=>rows.map(e=>'<tr><td>'+e.proy+'</td><td>'+e.entr+'</td><td class=cc-ldr>'+(e.lider||'Información no disponible')+'</td></tr>').join('');
+    const secComp=nComp?'<tr class=cc-grp><td colspan=3>Completados</td></tr>'+mkRows(compRows):'';
+    const secCur=nCur?'<tr class=cc-grp><td colspan=3>En curso</td></tr>'+mkRows(curRows):'';
+    const tgl=JSON.stringify('toggleCC(\''+id+'\')');
+    const detail=(nComp||nCur)?'<div id='+id+' style=display:none class=cc-detail><table class=cc-tbl><thead><tr><th>Proyecto</th><th>Entregable</th><th>L\u00edder</th></tr></thead><tbody>'+secComp+secCur+'</tbody></table></div>':'';
+    const pillComp=nComp?'<span class=cc-comp>'+nComp+' completado'+(nComp>1?'s':'')+'</span>':'<span class=cc-zero>0 completados</span>';
+    const pillCur=nCur?'<span class=cc-cur>'+ nCur+' en curso</span>':''
+    return '<div class=cc-row onclick='+tgl+'><div class=cc-name>'+cli+' <span class=cc-arr>&#9660;</span></div><div class=cc-nums>'+pillComp+pillCur+'</div></div>'+detail;
+  }).join('');
+};
+const toggleCC=id=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  const show=el.style.display==='none';
+  el.style.display=show?'block':'none';
+  const row=el.previousElementSibling;
+  if(row){const arr=row.querySelector('.cc-arr');if(arr)arr.style.transform=show?'rotate(180deg)':'';}
+};
+let chart=null;
+const initChart=()=>{
+  const tog=document.getElementById('pt');
+  DP.forEach(p=>{const b=document.createElement('button');b.textContent=p;b.onclick=()=>selP(p,b);tog.appendChild(b);});
+  const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const labels=DM.map(m=>{const[y,mo]=m.split('-');return MN[+mo-1]+' '+y.slice(2);});
+  chart=new Chart(document.getElementById('cH').getContext('2d'),{
+    type:'bar',data:{labels,datasets:[{label:'Horas',data:DHM,backgroundColor:'rgba(59,130,246,.75)',borderColor:'#1d4ed8',borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'Horas: '+c.parsed.y.toLocaleString('es-CL')}}},
+      scales:{y:{beginAtZero:true,grid:{color:'#e2e8f0'},ticks:{font:{size:10}}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+};
+const selP=(p,btn)=>{
+  document.querySelectorAll('#pt button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  const d=p==='__t__'?DHM:(DPD[p]||DM.map(()=>0));
+  chart.data.datasets[0].data=d;chart.data.datasets[0].label=p==='__t__'?'Horas':p;chart.update();
+};
+const renderCarga=()=>{
+  const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const lbl=DM.map(m=>{const[y,mo]=m.split('-');return MN[+mo-1]+' '+y.slice(2);});
+  document.getElementById('cHdr').innerHTML='<th class=pn>Profesional</th>'+lbl.map(l=>'<th>'+l+'</th>').join('')+'<th>Total</th>';
+  let mx=0;DP.forEach(p=>{(DPD[p]||[]).forEach(v=>{if(v>mx)mx=v;});});
+  document.getElementById('cBody').innerHTML=DP.map(p=>{
+    const row=DPD[p]||DM.map(()=>0);
+    const tot=row.reduce((s,v)=>s+v,0);
+    const cells=row.map(v=>{const st=hc(v,mx);return '<td'+(st?' style='+JSON.stringify(st):'')+'>'+( v>0?v.toLocaleString('es-CL'):'' )+'</td>';}).join('');
+    return '<tr><td class=pn>'+p+'</td>'+cells+'<td style='+JSON.stringify('font-weight:700;color:#475569')+'>'+tot.toLocaleString('es-CL')+'</td></tr>';
+  }).join('');
+};
+const COLORS=['#2563eb','#059669','#d946ef','#f59e0b','#ef4444','#10b981','#6366f1','#fb7185','#14b8a6','#ea580c','#7c3aed','#06b6d4'];
+const Q2=JSON.stringify;
+let curGanttMode='__all__';
+const drawGantt=(rows,labelFn,colorFn)=>{
+  if(!rows.length){document.getElementById('ganttDiv').innerHTML='<p class=empty>Sin datos</p>';return;}
+  const allD=rows.flatMap(r=>[parseFecha(r.ini),parseFecha(r.ter)]).filter(d=>!isNaN(d));
+  if(!allD.length){document.getElementById('ganttDiv').innerHTML='<p class=empty>Sin fechas</p>';return;}
+  const minD=new Date(Math.min(...allD));const maxD=new Date(Math.max(...allD));
+  minD.setDate(1);maxD.setMonth(maxD.getMonth()+1);maxD.setDate(1);
+  const span=(maxD-minD)/864e5;if(span<=0)return;
+  const RH=24,HDR=32,LW=220,TW=Math.max(700,Math.min(1400,span*3));
+  const H=HDR+rows.length*RH+10;const W2=LW+TW+20;
+  const xOf=d=>(new Date(d)-minD)/864e5/span*TW;
+  const MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let sv='<svg width='+W2+' height='+H+' xmlns='+Q2('http://www.w3.org/2000/svg')+' style='+Q2('display:block')+ '>';
+  sv+='<rect width='+W2+' height='+H+' fill='+Q2('#f8fafc')+'/>';
+  let cur=new Date(minD);let alt=0;
+  while(cur<maxD){
+    const nx=new Date(cur);nx.setMonth(nx.getMonth()+1);
+    const x1=Math.round(LW+xOf(cur)),x2=Math.round(LW+xOf(nx));
+    sv+='<rect x='+x1+' y=0 width='+(x2-x1)+' height='+HDR+' fill='+Q2(alt%2?'#e2e8f0':'#dbeafe')+'/>';
+    sv+='<text x='+(x1+(x2-x1)/2)+' y=20 text-anchor='+Q2('middle')+' font-size='+Q2('10')+' fill='+Q2('#475569')+'>'+MN[cur.getMonth()]+' '+String(cur.getFullYear()).slice(2)+'</text>';
+    cur=nx;alt++;
+  }
+  const xH=Math.round(LW+xOf(HOY));
+  sv+='<line x1='+xH+' y1=0 x2='+xH+' y2='+H+' stroke='+Q2('#dc2626')+' stroke-width='+Q2('1.5')+' stroke-dasharray='+Q2('4')+'/>';
+  sv+='<text x='+(xH+3)+' y=12 font-size='+Q2('9')+' fill='+Q2('#dc2626')+'>hoy</text>';
+  rows.forEach((r,i)=>{
+    const y=HDR+i*RH;
+    const isHdr=r.isCliHeader||r.isProyHeader;
+    const bg=isHdr?'#374151':(i%2?'#f1f5f9':'#ffffff');
+    sv+='<rect x=0 y='+y+' width='+W2+' height='+RH+' fill='+Q2(bg)+'/>';
+    const fc=isHdr?'#ffffff':'#0f172a';
+    const lbl=labelFn(r);
+    const fs=isHdr?'11':'10';
+    const fw=isHdr?' font-weight='+Q2('bold'):'';
+    sv+='<text x=6 y='+(y+RH/2+4)+' font-size='+Q2(fs)+fw+' fill='+Q2(fc)+'>'+lbl.main.substring(0,32)+'</text>';
+    if(!isHdr){
+      const x1g=Math.round(LW+Math.max(0,xOf(r.ini)));
+      const x2g=Math.round(LW+Math.min(TW,xOf(r.ter)));
+      const bw=Math.max(6,x2g-x1g);
+      sv+='<rect x='+x1g+' y='+(y+5)+' width='+bw+' height='+(RH-10)+' rx='+Q2('3')+' fill='+Q2(colorFn(r))+' opacity='+Q2('0.85')+'/>';
+    }
+  });
+  sv+='</svg>';
+  document.getElementById('ganttDiv').innerHTML=sv;
+};
+const ganttTodo=()=>{
+  const byCli={};
+  DG.forEach(g=>{
+    if(!byCli[g.cli])byCli[g.cli]={};
+    const k=g.proy;
+    if(!byCli[g.cli][k])byCli[g.cli][k]={cli:g.cli,proy:g.proy,ini:g.ini,ter:g.ter,ci:g.ci};
+    else{if(g.ini<byCli[g.cli][k].ini)byCli[g.cli][k].ini=g.ini;if(g.ter>byCli[g.cli][k].ter)byCli[g.cli][k].ter=g.ter;}
+  });
+  const clientes=Object.keys(byCli).sort();
+  const final=[];
+  let ci=0;const proyIdx={};
+  clientes.forEach(cli=>{
+    const proyRows=Object.values(byCli[cli]).sort((a,b)=>a.proy.localeCompare(b.proy));
+    const cliIni=proyRows.reduce((m,r)=>r.ini<m?r.ini:m,proyRows[0].ini);
+    const cliTer=proyRows.reduce((m,r)=>r.ter>m?r.ter:m,proyRows[0].ter);
+    final.push({isCliHeader:true,cli,ini:cliIni,ter:cliTer});
+    proyRows.forEach(r=>{
+      const pk=cli+'|'+r.proy;
+      if(!proyIdx[pk])proyIdx[pk]=ci++%COLORS.length;
+      final.push({...r,isCliHeader:false});
+    });
+  });
+  drawGantt(final,
+    r=>r.isCliHeader?{main:r.cli,sub:'',header:true}:{main:r.proy,sub:''},
+    r=>r.isCliHeader?'transparent':COLORS[proyIdx[r.cli+'|'+r.proy]||0]
+  );
+};
+const ganttCliente=(cli)=>{
+  const rows=DG.filter(g=>g.cli===cli).sort((a,b)=>a.proy.localeCompare(b.proy)||a.ini.localeCompare(b.ini));
+  if(!rows.length){document.getElementById('ganttDiv').innerHTML='<p class=empty>Sin entregables activos para '+cli+'</p>';return;}
+  const final=[];let lastP='';let ci=0;const proyIdx={};
+  rows.forEach(r=>{
+    if(r.proy!==lastP){
+      if(!proyIdx[r.proy])proyIdx[r.proy]=ci++%COLORS.length;
+      const proyRows=rows.filter(x=>x.proy===r.proy);
+      const pIni=proyRows.reduce((m,x)=>x.ini<m?x.ini:m,proyRows[0].ini);
+      const pTer=proyRows.reduce((m,x)=>x.ter>m?x.ter:m,proyRows[0].ter);
+      final.push({isProyHeader:true,cli:r.cli,proy:r.proy,ini:pIni,ter:pTer});
+      lastP=r.proy;
+    }
+    final.push({...r,isProyHeader:false});
+  });
+  drawGantt(final,
+    r=>r.isProyHeader?{main:r.proy,sub:'',header:true}:{main:r.entr,sub:r.proy},
+    r=>r.isProyHeader?'transparent':COLORS[proyIdx[r.proy]||0]
+  );
+};
+const renderGantt=()=>{
+  const tog=document.getElementById('gtog');
+  const clientes=[...new Set(DG.map(g=>g.cli))].sort();
+  tog.innerHTML='';
+  const btnTodo=document.createElement('button');
+  btnTodo.textContent='Todo';btnTodo.classList.add('active');
+  btnTodo.onclick=()=>selG('__all__',btnTodo);
+  tog.appendChild(btnTodo);
+  clientes.forEach(cli=>{
+    const b=document.createElement('button');
+    b.textContent=cli;
+    b.onclick=()=>selG(cli,b);
+    tog.appendChild(b);
+  });
+  selG('__all__',btnTodo);
+};
+const selG=(cli,btn)=>{
+  curGanttMode=cli;
+  document.querySelectorAll('#gtog button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(cli==='__all__')ganttTodo();
+  else ganttCliente(cli);
+};
+const renderDet=d=>{
+  const rows=d.filter(e=>e.est!=='No iniciado'&&e.est!=='Completado');
+  document.getElementById('dCnt').textContent='('+rows.length+' registros)';
+  const tb=document.getElementById('tbD');
+  if(!rows.length){tb.innerHTML='<tr><td colspan=10 class=empty>Sin activos</td></tr>';return;}
+  tb.innerHTML=rows.map(e=>{
+    const col=pc(e.avR,e.avT);
+    const pb='<span class=pb><span class=pf style='+JSON.stringify('width:'+Math.min(e.avR,100)+'%;background:'+col)+'></span></span><span style='+JSON.stringify('font-size:10px;color:'+col)+'>'+e.avR.toFixed(0)+'%</span>';
+    const pbt='<span class=pb><span class=pf style='+JSON.stringify('width:'+Math.min(e.avT,100)+'%;background:#94a3b8')+'></span></span><span style='+JSON.stringify('font-size:10px;color:#94a3b8')+'>'+e.avT.toFixed(0)+'%</span>';
+    return '<tr><td>'+e.cli+'</td><td>'+e.proy+'</td><td>'+e.entr+'</td><td>'+e.lider+'</td><td>'+pb+'</td><td>'+pbt+'</td><td><span class='+JSON.stringify('b '+bc(e.est))+'>'+e.est+'</span></td><td>'+(e.revB||'-')+'</td><td>'+(e.revA||'-')+'</td><td>'+(e.revP||'-')+'</td></tr>';
+  }).join('');
+};
+const renderPot=()=>{
+  const g=document.getElementById('potGrid');
+  if(!DPOT.length){g.innerHTML='<p class=empty>Sin datos en hoja POTENCIALES</p>';return;}
+  const byProy={};
+  DPOT.forEach(p=>{const k=p.cli+'|'+p.proy;if(!byProy[k])byProy[k]={cli:p.cli,proy:p.proy,pm:p.pm,etapa:p.etapa,items:[],total:0};byProy[k].items.push(p);byProy[k].total+=parseInt(p.hrs)||0;});
+  const maxH=Math.max(...Object.values(byProy).map(p=>p.total),1);
+  g.innerHTML=Object.values(byProy).map(p=>{
+    const pct=Math.round(p.total/maxH*100);
+    const items=p.items.map(i=>'<div class=pot-entr>\u2022 '+i.entr+' <span style=' + JSON.stringify('color:var(--al);font-weight:700') +'>'+i.hrs+' h</span></div>').join('');
+    const h1='<div class=pot-card><div class=pot-cli>'+p.cli+'</div><div class=pot-proy>'+p.proy+'</div>';
+    const h2='<div class=pot-pm>PM: '+p.pm+'</div><span class=pot-etapa>'+p.etapa+'</span>'+items;
+    const h3='<div class=pot-hrs>Total: '+p.total.toLocaleString('es-CL')+' hrs</div><div class=pot-bar-wrap><div class=pot-bar style='+JSON.stringify('width:'+pct+'%')+'></div></div></div>';
+    return h1+h2+h3;
+  }).join('');
+};
+const initSels=()=>{
+  const fill=(id,arr)=>{const s=document.getElementById(id);arr.forEach(v=>{if(v==='')return;const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});};
+  fill('fCli',CL);fill('fProy',PR);fill('fLid',LD);
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  console.log('DE:',DE.length,'DV:',DV.length,'DG:',DG.length,'DPOT:',DPOT.length);
+  initSels();initChart();renderCarga();renderCC();renderPot();renderGantt();applyF();
+});
+</script></body></html>
